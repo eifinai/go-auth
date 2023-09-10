@@ -1,0 +1,22 @@
+version: "3.7"
+
+services:
+  db:
+    container_name: auth_db
+    image: postgres:alpine
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data:/var/lib/postgresql/data
+  go-app:
+    container_name: go-auth-app
+    build: .
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    depends_on:
+      - db
