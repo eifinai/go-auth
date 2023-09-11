@@ -74,6 +74,7 @@ func main() {
 	r := gin.Default()
 
 	r.POST("/signup", router.Signup)
+	r.POST("/login", router.Login)
 
 	r.Run(":8080")
 }

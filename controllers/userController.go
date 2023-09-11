@@ -48,3 +48,33 @@ func (r Routes) Signup(c *gin.Context) {
 	// Respond
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully signed up"})
 }
+func (r Routes) Login(c *gin.Context) {
+	//Get email and password from request body
+	var body struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read body"})
+		return
+	}
+
+	//Get user from database
+	var user models.User
+	r.DB.QueryRow(fmt.Sprintf("SELECT * FROM users WHERE username = '%s'", body.Email)).Scan(&user.Id, &user.Email, &user.Password)
+
+	if user.Id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid password or email"})
+		return
+	}
+	//Compare password with hash
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid password or email"})
+		return
+	}
+
+	//respond
+	c.JSON(http.StatusOK, gin.H{"message": user.Id})
+
+}

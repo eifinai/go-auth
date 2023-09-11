@@ -29,3 +29,7 @@ func (d Database) Close() error {
 func (d Database) Exec(query string) (sql.Result, error) {
 	return d.DB.Exec(query)
 }
+
+func (d Database) QueryRow(query string) *sql.Row {
+	return d.DB.QueryRow(query)
+}
