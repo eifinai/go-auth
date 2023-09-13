@@ -90,7 +90,7 @@ func (r Routes) Login(c *gin.Context) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString(os.Getenv("SECRET"))
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"})
@@ -98,6 +98,12 @@ func (r Routes) Login(c *gin.Context) {
 	}
 
 	//respond
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("accessToken", tokenString, 3600*24, "", "localhost", false, true)
+	//c.JSON(http.StatusOK, gin.H{"accessToken": tokenString})
 
+}
+func (r Routes) Validate(c *gin.Context) {
+	user, _ := c.Get("user")
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully validated"})
 }

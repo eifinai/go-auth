@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-auth/controllers"
+	"go-auth/middleware"
 	"log"
 	"os"
 	"strconv"
@@ -66,6 +67,7 @@ func main() {
 		panic(err)
 	}
 	router := controllers.Routes{DB: dbConnection}
+	middleware := middleware.MiddlewareAuth{R: router}
 
 	fmt.Println(dbConnection)
 	fmt.Println("Successfully connected!")
@@ -75,6 +77,7 @@ func main() {
 
 	r.POST("/signup", router.Signup)
 	r.POST("/login", router.Login)
+	r.GET("/validate", middleware.RequireAuth, router.Validate)
 
 	r.Run(":8080")
 }
