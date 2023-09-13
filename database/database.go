@@ -26,10 +26,10 @@ func (d Database) Close() error {
 	return d.DB.Close()
 }
 
-func (d Database) Exec(query string) (sql.Result, error) {
-	return d.DB.Exec(query)
-}
+// func (d Database) Exec(query string) (sql.Result, error) {
+// 	return d.DB.Exec(query)
+// }
 
-func (d Database) QueryRow(query string) *sql.Row {
-	return d.DB.QueryRow(query)
-}
+// func (d Database) QueryRow(query string, param string) *sql.Row {
+// 	return d.DB.QueryRow(query, param)
+// }
