@@ -19,7 +19,7 @@ func (m MiddlewareAuth) RequireAuth(c *gin.Context) {
 	//Get token from request header
 	tokenString, err := c.Cookie("accessToken")
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (m MiddlewareAuth) RequireAuth(c *gin.Context) {
 		//call next middleware
 		c.Next()
 	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 }

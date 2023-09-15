@@ -104,6 +104,6 @@ func (r Routes) Login(c *gin.Context) {
 
 }
 func (r Routes) Validate(c *gin.Context) {
-	user, _ := c.Get("user")
+	//user, _ := c.Get("user")
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully validated"})
 }
