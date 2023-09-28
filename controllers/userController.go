@@ -1,10 +1,10 @@
 package controllers
 
 import (
+	"database/sql"
 	"net/http"
 	"os"
 
-	"go-auth/database"
 	"go-auth/models"
 
 	"time"
@@ -15,7 +15,15 @@ import (
 )
 
 type Routes struct {
-	DB database.Database
+	DB     *sql.DB
+	UserDB UserDatabase
+}
+
+func NewRouter(db *sql.DB) Routes {
+	return Routes{
+		DB:     db,
+		UserDB: UserDatabase{DB: db},
+	}
 }
 
 func (r Routes) Signup(c *gin.Context) {
@@ -39,17 +47,16 @@ func (r Routes) Signup(c *gin.Context) {
 
 	// Check if user already exists
 	var existingUser models.User
-	r.DB.DB.QueryRow("SELECT * FROM users WHERE username = $1", body.Email).Scan(&existingUser.Id, &existingUser.Email, &existingUser.Password)
-
+	existingUser, _ = r.UserDB.GetUserByEmail(body.Email)
+	//TODO: check for no result error
 	if existingUser.Id != 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "This user already exists"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User already exists"})
 		return
 	}
 
 	// Create user in the database
 	user := models.User{Email: body.Email, Password: string(hash)}
-	_, err = r.DB.DB.Exec("INSERT INTO users (username, password_hash) VALUES ($1, $2)", user.Email, user.Password)
-
+	err = r.UserDB.CreateUser(user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -71,8 +78,8 @@ func (r Routes) Login(c *gin.Context) {
 
 	//Get user from database
 	var user models.User
-	r.DB.DB.QueryRow("SELECT * FROM users WHERE username = $1", body.Email).Scan(&user.Id, &user.Email, &user.Password)
-
+	user, _ = r.UserDB.GetUserByEmail(body.Email)
+	//TODO: check for no result error
 	if user.Id == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid password or email"})
 		return
