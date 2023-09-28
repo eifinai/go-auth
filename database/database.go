@@ -4,26 +4,18 @@ import (
 	"database/sql"
 )
 
-type Database struct {
-	DB *sql.DB
-}
-
-func NewDatabase(psqlInfo string) (Database, error) {
+func NewDatabase(psqlInfo string) (*sql.DB, error) {
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		return Database{}, err
+		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return Database{}, err
+		return nil, err
 	}
 
-	return Database{DB: db}, nil
-}
-
-func (d Database) Close() error {
-	return d.DB.Close()
+	return db, nil
 }
 
 // func (d Database) Exec(query string) (sql.Result, error) {

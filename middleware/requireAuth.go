@@ -12,7 +12,7 @@ import (
 )
 
 type MiddlewareAuth struct {
-	R controllers.Routes
+	Routes controllers.Routes
 }
 
 func (m MiddlewareAuth) RequireAuth(c *gin.Context) {
@@ -41,9 +41,10 @@ func (m MiddlewareAuth) RequireAuth(c *gin.Context) {
 
 		//find user in database
 		var user models.User
-		m.R.DB.DB.QueryRow("SELECT * FROM users WHERE id = $1", claims["sub"]).Scan(&user.Id, &user.Email, &user.Password)
+		//m.Routes.DB.QueryRow("SELECT * FROM users WHERE id = $1", claims["sub"]).Scan(&user.Id, &user.Email, &user.Password)
+		user, err = m.Routes.UserDB.GetUserById(int(claims["sub"].(float64)))
 
-		if user.Id == 0 {
+		if err != nil || user.Id == 0 {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}

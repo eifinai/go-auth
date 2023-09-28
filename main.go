@@ -51,10 +51,6 @@ func getPostgresString(opt options) string {
 		opt.host, opt.port, opt.user, opt.postgresPassword, opt.dbname)
 }
 
-func init() {
-
-}
-
 func main() {
 	opt, err := getOptions()
 	if err != nil {
@@ -66,8 +62,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	router := controllers.Routes{DB: dbConnection}
-	middleware := middleware.MiddlewareAuth{R: router}
+	router := controllers.NewRouter(dbConnection)
+	middleware := middleware.MiddlewareAuth{Routes: router}
 
 	fmt.Println(dbConnection)
 	fmt.Println("Successfully connected!")
